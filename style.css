@@ -1,0 +1,61 @@
+#container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#board {
+  display: grid;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  gap: 10px;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+}
+
+.boardTile {
+  width: 5rem;
+  height: 5rem;
+  border: 0.2rem solid darkgray;
+  border-radius: 25%;
+  padding: 10px;
+  background-color: white;
+}
+
+.boardTile:hover {
+  background-color: ghostwhite;
+  border-color: gray;
+}
+
+.button {
+  width: 3rem;
+  height: 2rem;
+}
+
+#playerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.playerCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 7rem;
+  height: 4rem;
+  border: 0.2rem solid black;
+  border-radius: 25%;
+}
+
+#player1 {
+  background-color: red;
+}
+
+#player2 {
+  background-color: blue;
+}
