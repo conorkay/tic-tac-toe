@@ -69,7 +69,7 @@ const gameBoard = (function () {
     ) {
       game.changeGameStatus();
       game.processWin();
-      console.log('Winning turn #' + game.getCurrentTurn());
+      console.log('Winning turn #' + game.getCurrentPlayerTurn());
       console.log('game over');
       console.log(game.isGameOver());
       displayController.removeLoop();
@@ -90,19 +90,19 @@ const gameBoard = (function () {
 const game = (function () {
   var isOver = false;
   var turnCount = 1;
-  var currentTurn = 1;
+  var currentPlayerTurn = 1;
   var winner = 0;
 
   const isGameOver = () => isOver;
   const changeGameStatus = () => (isOver = !isOver);
   const getTurnCount = () => turnCount;
   const incrementTurnCount = () => turnCount++;
-  const getCurrentTurn = () => currentTurn;
+  const getCurrentPlayerTurn = () => currentPlayerTurn;
   const changeTurn = () => {
-    if (currentTurn === 1) {
-      currentTurn = 2;
-    } else if (currentTurn === 2) {
-      currentTurn = 1;
+    if (currentPlayerTurn === 1) {
+      currentPlayerTurn = 2;
+    } else if (currentPlayerTurn === 2) {
+      currentPlayerTurn = 1;
     }
   };
 
@@ -116,23 +116,22 @@ const game = (function () {
   const reset = () => {
     isOver = false;
     turnCount = 1;
-    currentTurn = 1;
+    currentPlayerTurn = 1;
     gameBoard.resetGameArray();
     gameBoard.updateGameBoard();
     player1.resetScore();
     player2.resetScore();
-    newGame = true;
+    displayController.setNewGame(true);
     displayController.removeLoop();
   };
 
   const processTie = () => {
     game.changeGameStatus();
     console.log('its a tie');
-    game.reset();
   };
 
   const processWin = () => {
-    if (currentTurn === 1) {
+    if (currentPlayerTurn === 1) {
       winner = 'x';
     } else {
       winner = 'o';
@@ -146,7 +145,7 @@ const game = (function () {
     start,
     reset,
     getTurnCount,
-    getCurrentTurn,
+    getCurrentPlayerTurn,
     changeTurn,
     incrementTurnCount,
     processTie,
@@ -155,6 +154,8 @@ const game = (function () {
 })();
 
 const displayController = (function () {
+  const newGameDialog = document.getElementById('newGameDialog');
+  const newGameForm = document.getElementById('newGameForm');
   var elemArray = new Array();
   const tile0 = document.getElementById('0');
   const tile1 = document.getElementById('1');
@@ -167,6 +168,27 @@ const displayController = (function () {
   const tile8 = document.getElementById('8');
   elemArray.push(tile0, tile1, tile2, tile3, tile4, tile5, tile6, tile7, tile8);
 
+  var newGame = true;
+
+  const setNewGame = (bool) => {
+    newGame = bool;
+    console.log(newGame);
+  };
+
+  const resetButton = document.getElementById('reset');
+  resetButton.addEventListener('click', (event) => {
+    game.reset();
+  });
+
+  const startButton = document.getElementById('start');
+  startButton.addEventListener('click', (event) => {
+    if (newGame) {
+      displayController.initialize();
+      newGame = false;
+      displayDialog();
+    }
+  });
+
   const initialize = () => {
     elemArray.forEach(addListener);
   };
@@ -177,7 +199,7 @@ const displayController = (function () {
   function handleEvent(e) {
     var success;
 
-    if (game.getCurrentTurn() === 1) {
+    if (game.getCurrentPlayerTurn() === 1) {
       success = gameBoard.updateArray(elemArray.indexOf(e.currentTarget), 'x');
     } else {
       success = gameBoard.updateArray(elemArray.indexOf(e.currentTarget), 'o');
@@ -202,7 +224,11 @@ const displayController = (function () {
     elem.removeEventListener('click', handleEvent);
   };
 
-  return { initialize, removeLoop };
+  const displayDialog = () => {
+    newGameDialog.showModal();
+  };
+
+  return { initialize, removeLoop, setNewGame };
 })();
 
 function createPlayer(id) {
@@ -215,18 +241,3 @@ function createPlayer(id) {
 
   return { getId, win, getScore, resetScore };
 }
-
-var newGame = true;
-
-const resetButton = document.getElementById('reset');
-resetButton.addEventListener('click', (event) => {
-  game.reset();
-});
-
-const startButton = document.getElementById('start');
-startButton.addEventListener('click', (event) => {
-  if (newGame) {
-    displayController.initialize();
-    newGame = false;
-  }
-});
