@@ -17,6 +17,9 @@
 }
 
 .boardTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 5rem;
   height: 5rem;
   border: 0.2rem solid darkgray;
