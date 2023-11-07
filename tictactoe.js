@@ -23,6 +23,7 @@ const gameBoard = (function () {
     }
     if (gameBoard.checkWinCondition()) {
       displayController.removeLoop();
+      return;
     }
   };
 
@@ -71,7 +72,6 @@ const gameBoard = (function () {
       game.processWin();
       console.log('Winning turn #' + game.getCurrentPlayerTurn());
       console.log('game over');
-      console.log(game.isGameOver());
       displayController.removeLoop();
       return true;
     }
@@ -95,15 +95,17 @@ const game = (function () {
   var player1;
   var player2;
 
-  function createPlayer(id) {
-    let playerName = id;
+  function createPlayer(name, id) {
+    let playerName = name;
+    let playerID = id;
     let score = 0;
     const win = () => ++score;
     const getScore = () => score;
     const resetScore = () => (score = 0);
     const getName = () => playerName;
+    const getID = () => playerID;
 
-    return { getName, win, getScore, resetScore };
+    return { getName, win, getScore, resetScore, getID };
   }
 
   const isGameOver = () => isOver;
@@ -122,12 +124,12 @@ const game = (function () {
   const getPlayer2Score = () => player2.getScore();
   const getPlayer1Name = () => player1.getName();
   const getPlayer2Name = () => player2.getName();
+  const getPlayer1ID = () => player1.getID();
+  const getPlayer2ID = () => player2.getID();
 
   const createPlayers = (name1, name2) => {
-    player1 = createPlayer(name1);
-    player2 = createPlayer(name2);
-    console.log(player1.getName());
-    console.log(player2.getName());
+    player1 = createPlayer(name1, 1);
+    player2 = createPlayer(name2, 2);
   };
 
   const start = () => {
@@ -142,22 +144,27 @@ const game = (function () {
     gameBoard.updateGameBoard();
     player1.resetScore();
     player2.resetScore();
+    displayController.resetTurnDisplay();
     displayController.setNewGame(true);
     displayController.removeLoop();
   };
 
   const processTie = () => {
-    game.changeGameStatus();
-    console.log('its a tie');
+    if (!game.isGameOver()) {
+      game.changeGameStatus();
+      console.log('its a tie');
+      alert("It's a tie!");
+    }
   };
 
   const processWin = () => {
     if (currentPlayerTurn === 1) {
-      winner = 'x';
+      winner = player1.getName();
     } else {
-      winner = 'o';
+      winner = player2.getName();
     }
     console.log('winner: ' + winner);
+    alert(winner + ' wins!');
   };
 
   return {
@@ -166,6 +173,8 @@ const game = (function () {
     getPlayer1Score,
     getPlayer2Name,
     getPlayer2Score,
+    getPlayer1ID,
+    getPlayer2ID,
     isGameOver,
     changeGameStatus,
     start,
@@ -211,12 +220,15 @@ const displayController = (function () {
       e.currentTarget.player2Name.value
     );
 
+    turnDisplay();
+
     closeTheDialog(newGameDialog);
   });
 
   function closeTheDialog(dialog) {
     dialog.close();
   }
+
   function openCheck(dialog) {
     if (dialog.open) {
       console.log('Dialog open');
@@ -232,7 +244,6 @@ const displayController = (function () {
 
   const setNewGame = (bool) => {
     newGame = bool;
-    console.log(newGame);
   };
 
   const resetButton = document.getElementById('reset');
@@ -265,11 +276,12 @@ const displayController = (function () {
       success = gameBoard.updateArray(elemArray.indexOf(e.currentTarget), 'o');
     }
     if (success) {
-      console.log('success');
       gameBoard.updateGameBoard();
       game.changeTurn();
+      if (!game.isGameOver()) {
+        turnDisplay();
+      }
       game.incrementTurnCount();
-      console.log(game.getTurnCount());
       if (game.getTurnCount() === 10) {
         game.processTie();
       }
@@ -284,9 +296,25 @@ const displayController = (function () {
     elem.removeEventListener('click', handleEvent);
   };
 
+  const resetTurnDisplay = () => {
+    player1Card.style.backgroundColor = 'Orangered';
+    player2Card.style.backgroundColor = 'Mediumblue';
+  };
+
+  const turnDisplay = () => {
+    console.log('made it to turn display');
+    if (game.getCurrentPlayerTurn() === game.getPlayer1ID()) {
+      player1Card.style.backgroundColor = 'Orangered';
+      player2Card.style.backgroundColor = 'Powderblue';
+    } else {
+      player1Card.style.backgroundColor = 'Tomato';
+      player2Card.style.backgroundColor = 'Mediumblue';
+    }
+  };
+
   const displayDialog = () => {
     newGameDialog.showModal();
   };
 
-  return { initialize, removeLoop, setNewGame };
+  return { initialize, removeLoop, setNewGame, turnDisplay, resetTurnDisplay };
 })();
