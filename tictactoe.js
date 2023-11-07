@@ -92,6 +92,19 @@ const game = (function () {
   var turnCount = 1;
   var currentPlayerTurn = 1;
   var winner = 0;
+  var player1;
+  var player2;
+
+  function createPlayer(id) {
+    let playerName = id;
+    let score = 0;
+    const win = () => ++score;
+    const getScore = () => score;
+    const resetScore = () => (score = 0);
+    const getName = () => playerName;
+
+    return { getName, win, getScore, resetScore };
+  }
 
   const isGameOver = () => isOver;
   const changeGameStatus = () => (isOver = !isOver);
@@ -105,9 +118,17 @@ const game = (function () {
       currentPlayerTurn = 1;
     }
   };
+  const getPlayer1Score = () => player1.getScore();
+  const getPlayer2Score = () => player2.getScore();
+  const getPlayer1Name = () => player1.getName();
+  const getPlayer2Name = () => player2.getName();
 
-  const player1 = createPlayer(1);
-  const player2 = createPlayer(2);
+  const createPlayers = (name1, name2) => {
+    player1 = createPlayer(name1);
+    player2 = createPlayer(name2);
+    console.log(player1.getName());
+    console.log(player2.getName());
+  };
 
   const start = () => {
     while (!isOver) {}
@@ -140,6 +161,11 @@ const game = (function () {
   };
 
   return {
+    createPlayers,
+    getPlayer1Name,
+    getPlayer1Score,
+    getPlayer2Name,
+    getPlayer2Score,
     isGameOver,
     changeGameStatus,
     start,
@@ -156,6 +182,10 @@ const game = (function () {
 const displayController = (function () {
   const newGameDialog = document.getElementById('newGameDialog');
   const newGameForm = document.getElementById('newGameForm');
+  const player1Card = document.getElementById('player1');
+  const player2Card = document.getElementById('player2');
+  var newGame = true;
+
   var elemArray = new Array();
   const tile0 = document.getElementById('0');
   const tile1 = document.getElementById('1');
@@ -168,7 +198,37 @@ const displayController = (function () {
   const tile8 = document.getElementById('8');
   elemArray.push(tile0, tile1, tile2, tile3, tile4, tile5, tile6, tile7, tile8);
 
-  var newGame = true;
+  newGameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    game.createPlayers(
+      e.currentTarget.player1Name.value,
+      e.currentTarget.player2Name.value
+    );
+
+    setPlayerCards(
+      e.currentTarget.player1Name.value,
+      e.currentTarget.player2Name.value
+    );
+
+    closeTheDialog(newGameDialog);
+  });
+
+  function closeTheDialog(dialog) {
+    dialog.close();
+  }
+  function openCheck(dialog) {
+    if (dialog.open) {
+      console.log('Dialog open');
+    } else {
+      console.log('Dialog closed');
+    }
+  }
+
+  const setPlayerCards = (name1, name2) => {
+    player1Card.innerText = name1;
+    player2Card.innerText = name2;
+  };
 
   const setNewGame = (bool) => {
     newGame = bool;
@@ -230,14 +290,3 @@ const displayController = (function () {
 
   return { initialize, removeLoop, setNewGame };
 })();
-
-function createPlayer(id) {
-  let playerID = id;
-  let score = 0;
-  const win = () => ++score;
-  const getScore = () => score;
-  const resetScore = () => (score = 0);
-  const getId = () => playerID;
-
-  return { getId, win, getScore, resetScore };
-}
