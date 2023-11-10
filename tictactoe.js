@@ -132,10 +132,6 @@ const game = (function () {
     player2 = createPlayer(name2, 2);
   };
 
-  const start = () => {
-    while (!isOver) {}
-  };
-
   const reset = () => {
     isOver = false;
     turnCount = 1;
@@ -177,7 +173,6 @@ const game = (function () {
     getPlayer2ID,
     isGameOver,
     changeGameStatus,
-    start,
     reset,
     getTurnCount,
     getCurrentPlayerTurn,
